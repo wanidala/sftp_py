@@ -11,7 +11,7 @@ class RemoteTransfer:
     """A wrapper for paramiko sftp client"""
     TIMEOUT = 5
 
-    def __init__(self, host, username, port=22, key=None, key_passphrase=None, password=None, downloaded_files=None):
+    def __init__(self, host, username, port=22, key=None, key_passphrase=None, password=None, downloaded_files=None, **kwargs):
         self.host = host
         self.username = username
         self.port = port
@@ -19,6 +19,7 @@ class RemoteTransfer:
         self.key_passphrase = key_passphrase
         self.password = password
         self.downloaded_files = downloaded_files
+        self.kwargs = kwargs
 
     def connect(self):
         """Connect to the remote server"""
@@ -27,7 +28,7 @@ class RemoteTransfer:
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             if self.key is not None:
                 self.key = paramiko.RSAKey.from_private_key_file(self.key)
-            self.client.connect(hostname=self.host, username=self.username, port=self.port, password=self.password, pkey=self.key, passphrase=self.key_passphrase, timeout=self.TIMEOUT)
+            self.client.connect(hostname=self.host, username=self.username, port=self.port, password=self.password, pkey=self.key, passphrase=self.key_passphrase, timeout=self.TIMEOUT, **self.kwargs)
             self.sftp_client = self.client.open_sftp()
             print('Connected to remote', self.host)
         except Exception as e:

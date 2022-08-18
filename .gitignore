@@ -131,3 +131,6 @@ dmypy.json
 # Custom
 TESTING
 README
+
+#VS Code
+.vscode/

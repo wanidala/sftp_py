@@ -1,17 +1,17 @@
 #! /usr/bin/env python3
 """Main module"""
 
-import paramiko
 import os
 import socket
 import stat
-
+import paramiko
 
 class RemoteTransfer:
     """A wrapper for paramiko sftp client"""
     TIMEOUT = 5
 
-    def __init__(self, host, username, port=22, key=None, key_passphrase=None, password=None, downloaded_files=None, **kwargs):
+    def __init__(self, host, username, port=22, key=None, key_passphrase=None,
+                 password=None, downloaded_files=None, **kwargs):
         self.host = host
         self.username = username
         self.port = port
@@ -20,24 +20,28 @@ class RemoteTransfer:
         self.password = password
         self.downloaded_files = downloaded_files
         self.kwargs = kwargs
+        self.client = paramiko.SSHClient()
+        self.sftp_client = None
 
     def connect(self):
         """Connect to the remote server"""
         try:
-            self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             if self.key is not None:
                 self.key = paramiko.RSAKey.from_private_key_file(self.key)
-            self.client.connect(hostname=self.host, username=self.username, port=self.port, password=self.password, pkey=self.key, passphrase=self.key_passphrase, timeout=self.TIMEOUT, **self.kwargs)
+            self.client.connect(hostname=self.host, username=self.username, port=self.port,
+                                password=self.password, pkey=self.key,
+                                passphrase=self.key_passphrase,timeout=self.TIMEOUT, **self.kwargs)
             self.sftp_client = self.client.open_sftp()
             print('Connected to remote', self.host)
-        except Exception as e:
-            if isinstance(e, paramiko.SSHException):
-                print("Could not establish SSH connection: %s" % e)
-            elif isinstance(e, socket.timeout):
-                print("Connection timed out")
-            else:
-                print("Error connecting to remote: " + repr(e))
+        except paramiko.SSHException as sshexception:
+            print("Could not establish an SSH connection: %s", sshexception)
+            self.disconnect()
+        except socket.timeout as timeoutexception:
+            print("Could not establish SSH connection: %s", timeoutexception)
+            self.disconnect()
+        except Exception as exception:
+            print("Error connecting to remote: " + repr(exception))
             self.disconnect()
 
     def list_remote_dir(self, remotepath, show_hidden=True):
@@ -56,11 +60,11 @@ class RemoteTransfer:
             if show_hidden is False:
                 dir_contents = [i for i in dir_contents if not i.startswith('.')]
             return dir_contents
-        except Exception as e:
-            if isinstance(e, IOError):
+        except Exception as exception:
+            if isinstance(exception, IOError):
                 print('%s is an invalid directory path' % remotepath)
             else:
-                print('Error listing remote directory contents: ' + repr(e))
+                print('Error listing remote directory contents: ' + repr(exception))
             self.disconnect()
 
     def remote_download(self, remotepath, localpath, copy_hidden_files=True, copy_symlink_files=True, remove=False):
@@ -131,8 +135,8 @@ class RemoteTransfer:
             else:
                 self.disconnect()
                 print('Could not establish SSH connection')
-        except Exception as e:
-            print('Error downloading from the remote server: %s' % e)
+        except Exception as exception:
+            print('Error downloading from the remote server: %s' % exception)
             self.disconnect()
 
     def remote_upload(self, remotepath, localpath, copy_hidden_files=True, copy_symlink_files=True, remove=False):
@@ -193,8 +197,8 @@ class RemoteTransfer:
                     self.remove_uploaded()
                     print('Removed uploaded files from local directory')
 
-        except Exception as e:
-            print('Error uploading to the remote server: %s' % e)
+        except Exception as exception:
+            print('Error uploading to the remote server: %s' % exception)
             self.disconnect()
 
     def remove_downloaded(self):
@@ -220,10 +224,7 @@ class RemoteTransfer:
 
         """
         fileattr = self.sftp_client.lstat(remotepath)
-        if stat.S_ISDIR(fileattr.st_mode):
-            return True
-        else:
-            return False
+        return stat.S_ISDIR(fileattr.st_mode)
 
     def remote_isfile(self, remotepath):
         """
@@ -236,10 +237,7 @@ class RemoteTransfer:
 
         """
         fileattr = self.sftp_client.lstat(remotepath)
-        if stat.S_ISREG(fileattr.st_mode):
-            return True
-        else:
-            return False
+        return stat.S_ISREG(fileattr.st_mode)
 
     def remote_islink(self, remotepath):
         """
@@ -252,10 +250,7 @@ class RemoteTransfer:
 
         """
         fileattr = self.sftp_client.lstat(remotepath)
-        if stat.S_ISLNK(fileattr.st_mode):
-            return True
-        else:
-            return False
+        return stat.S_ISLNK(fileattr.st_mode)
 
     def disconnect(self):
         """Disconnect from remote server"""

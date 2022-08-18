@@ -4,10 +4,10 @@
 
 from setuptools import setup, find_packages
 
-with open('README.md') as readme_file:
+with open('README.md', 'r', encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.md') as history_file:
+with open('HISTORY.md', 'r', encoding='utf-8') as history_file:
     history = history_file.read()
 
 requirements = ['paramiko>=2.7.1']
@@ -17,21 +17,18 @@ setup_requirements = []
 test_requirements = []
 
 setup(
-    author="Alex Orlek",
-    author_email='alex.orlek@gmail.com',
-    python_requires='>=3.4',
+    author="Stephen Baker",
+    author_email='sbaker@adica.com.au',
+    python_requires='>=3.8',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10'
     ],
     description="py_sftp uses sftp to transfer files from remote to local and vice-versa.",
     install_requires=requirements,
@@ -45,7 +42,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/AlexOrlek/sftp_py',
+    url='https://github.com/wanidala/sftp_py',
     version='0.2.1',
     zip_safe=False,
 )

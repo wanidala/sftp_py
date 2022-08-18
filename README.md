@@ -8,7 +8,7 @@ pip3 install sftp_py
 ```
 ### From GitHub repository:
 ```bash
-git clone https://github.com/AlexOrlek/sftp_py.git
+git clone https://github.com/wanidala/sftp_py.git
 cd sftp_py
 pip3 install .
 ```
@@ -23,7 +23,7 @@ sftp_py can be used within a Python script as follows:<br>
 
 ### To download from a remote server:
 
-```bash
+```python
 # Establish connection and download files. 
 # local_path must be a directory
 # remote_path can be a single file or a directory containing files to be transferred
@@ -47,7 +47,7 @@ conn.disconnect()
 
 ### To upload to a server:
 
-```bash
+```python
 # Code for uploading to a remote server is similar to code for downloading from a remote server...
 
 conn = RemoteTransfer(host=host_name, username=user_name, port=22, key=private_key_path)
